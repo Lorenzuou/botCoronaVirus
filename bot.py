@@ -44,17 +44,18 @@ print (user.name)
 
 requisicao = requests.get('https://brasil.io/api/dataset/covid19/caso/data/?format=json')
 
+
 a = json.loads(requisicao.text)
 df = pd.json_normalize(a, ['results'])
 df = df.loc[(df['state'] == 'ES')]
 df = df.reset_index()
 df.to_json('atual.json')
 
+
 dfAnterior = pd.read_json('anterior.json')
 dfAtual = pd.read_json('atual.json')
 
-
-if df.loc[df.last_valid_index(),'date'] == dfAnterior.loc[df.last_valid_index(),'date']:
+if dfAtual.loc[dfAtual.last_valid_index(),'date'] == dfAnterior.loc[dfAnterior.last_valid_index(),'date']:
      print('nao atualizaram os números ainda')
 else: 
 	calcula()
