@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 /__pycache__/
 /.ipynb_checkpoints/
 
+=======
+
+__pycache__/
+>>>>>>> 2dcbddc6e87d3a98d460a36f79a23ce0e5c12f15
 acesso.py
