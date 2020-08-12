@@ -12,9 +12,9 @@ acesso = ip.import_module('acesso')
 
 
 def calcula(): 
-	totalMortes = df.loc[df.last_valid_index(),'deaths'] - dfAnterior.loc[df.last_valid_index(),'deaths']
+	totalMortes = dfAtual.loc[dfAtual.last_valid_index(),'deaths'] - dfAnterior.loc[dfAnterior.last_valid_index(),'deaths']
 
-	totalCasos = df.loc[df.last_valid_index(),'confirmed'] - dfAnterior.loc[df.last_valid_index(),'confirmed']
+	totalCasos = dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] - dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']
 	tuitar()
 
 def tuitar(): 
@@ -26,6 +26,9 @@ def tuitar():
 
 def gerarJSON(): 
 	df.to_json('anterior.json')
+	a_file = open("count.json", "w")
+	json.dump(a['count'], a_file)
+	a_file.close()
 	print("gravou")
 
 
@@ -43,19 +46,43 @@ user = api.me()
 print (user.name)
 
 requisicao = requests.get('https://brasil.io/api/dataset/covid19/caso/data/?format=json')
-
-
 a = json.loads(requisicao.text)
-df = pd.json_normalize(a, ['results'])
-df = df.loc[(df['state'] == 'ES')]
-df = df.reset_index()
-df.to_json('atual.json')
 
 
-dfAnterior = pd.read_json('anterior.json')
-dfAtual = pd.read_json('atual.json')
+f = open('count.json')
+f = json.load(f)
 
-if dfAtual.loc[dfAtual.last_valid_index(),'date'] == dfAnterior.loc[dfAnterior.last_valid_index(),'date']:
-     print('nao atualizaram os números ainda')
+
+
+if a['count'] > f:
+	df = pd.json_normalize(a, ['results'])
+	df = df.loc[(df['state'] == 'ES')]
+	df = df.reset_index()
+	df.to_json('atual.json')
+
+	dfAnterior = pd.read_json('anterior.json')
+	dfAtual = pd.read_json('atual.json')
+	
+
+
+	print(dfAtual.loc[dfAtual.last_valid_index(),'date'])
+	print(dfAnterior.loc[dfAnterior.last_valid_index(),'date'])
+	print(dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed'])
+
+	print(dfAtual.loc[dfAtual.last_valid_index(),'confirmed'])
+	if dfAtual.loc[dfAtual.last_valid_index(),'date'] != dfAnterior.loc[dfAnterior.last_valid_index(),'date'] and dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] > dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']:
+		calcula()
+	else: 
+		print('Não atualizaram os números do ES ainda')
+		
 else: 
-	calcula()
+	print("Não atualizaram o boletim ainda")	
+
+
+
+
+
+
+
+	
+	
