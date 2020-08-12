@@ -9,20 +9,26 @@ from decouple import config
 totalMortes = 0
 totalCasos = 0
 
-acesso = ip.import_module('acesso')
+
+class Data(): 
+    def __init__(self,count,confirmados,mortes):
+        self.count = count
+        self.confirmados = confirmados 
+        self.mortes = mortes 
+
 
 
 def calcula(): 
-	mortes = dfAtual.loc[dfAtual.last_valid_index(),'deaths'] - dfAnterior.loc[dfAnterior.last_valid_index(),'deaths']
+	totalMortes = dfAtual.loc[dfAtual.last_valid_index(),'deaths'] - dfAnterior.loc[dfAnterior.last_valid_index(),'deaths']
 
-	casos = dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] - dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']
-	tuitar(mortes,casos)
+	totalCasos = dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] - dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']
+	tuitar()
 
-def tuitar(mortes,casos): 
+def tuitar(): 
 	
 	
 	
-	mensagem = "Hoje foram registradas "+ str(mortes) +" mortes por corona virus no ES e " + str(casos) + " novos casos."
+	mensagem = "Hoje foram registradas "+ str(totalMortes) +" mortes por corona virus no ES e " + str(totalCasos) + " novos casos."
 	api.update_status(mensagem)
 	print("tuitou")
 	gerarJSON()
@@ -37,6 +43,7 @@ def gerarJSON():
 
 
 
+acesso = ip.import_module('acesso')
 
 consumer_key = acesso.CONSUMER_KEY
 consumer_secret = acesso.CONSUMER_SECRET
@@ -68,10 +75,13 @@ if a['count'] > f:
 	dfAtual = pd.read_json('atual.json')
 	
 
-	dfAtual.loc[dfAtual.last_valid_index(),'date'] = 'batata'
+
+	print(dfAtual.loc[dfAtual.last_valid_index(),'date'])
+	print(dfAnterior.loc[dfAnterior.last_valid_index(),'date'])
+	print(dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed'])
 
 	print(dfAtual.loc[dfAtual.last_valid_index(),'confirmed'])
-	if dfAtual.loc[dfAtual.last_valid_index(),'date'] != dfAnterior.loc[dfAnterior.last_valid_index(),'date'] :
+	if dfAtual.loc[dfAtual.last_valid_index(),'date'] != dfAnterior.loc[dfAnterior.last_valid_index(),'date'] and dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] > dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']:
 		calcula()
 	else: 
 		print('Não atualizaram os números do ES ainda')
@@ -81,7 +91,7 @@ else:
 
 
 
-#and dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] > dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']
+
 
 
 
