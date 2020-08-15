@@ -6,25 +6,52 @@ import pandas as pd
 import importlib as ip
 from decouple import config
 
-totalMortes = 0
-totalCasos = 0
+
 
 acesso = ip.import_module('acesso')
+
+
+
+
+
+
+
+
+class Boletim(): 
+	def __init__(self,casos,mortes):
+	 self.count = a['count']
+	 self.date = dfAtual.loc[dfAtual.last_valid_index(),'date']
+	 self.confirmed = casos
+	 self.deaths = mortes
+
+	def appendBoletim(self): 
+		print("confirmados: " + str(self.confirmed))
+		data = pd.DataFrame({'count':[self.count],'date':[self.date],'confirmed':[self.confirmed],'deaths':[self.deaths]})
+		data.to_csv('boletins.csv',mode='a', header=False)
+
+
+
 
 
 def calcula(): 
 	mortes = dfAtual.loc[dfAtual.last_valid_index(),'deaths'] - dfAnterior.loc[dfAnterior.last_valid_index(),'deaths']
 
 	casos = dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] - dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']
+
 	tuitar(mortes,casos)
+	
 
 def tuitar(mortes,casos): 
-	
-	
-	
+
 	mensagem = "Hoje foram registradas "+ str(mortes) +" mortes por corona virus no ES e " + str(casos) + " novos casos."
-	api.update_status(mensagem)
-	print("tuitou")
+	try: 
+		api.update_status(mensagem)
+		print("tuitou")
+	except: 
+		print("status não foi atualizado")	
+	
+	doc = Boletim(casos,mortes)
+	doc.appendBoletim() 
 	gerarJSON()
 
 
@@ -60,19 +87,23 @@ f = json.load(f)
 
 if a['count'] > f:
 	df = pd.json_normalize(a, ['results'])
+	print(df)
 	df = df.loc[(df['state'] == 'ES')]
 	df = df.reset_index()
 	df.to_json('atual.json')
-
+	
 	dfAnterior = pd.read_json('anterior.json')
 	dfAtual = pd.read_json('atual.json')
 	
-
-	dfAtual.loc[dfAtual.last_valid_index(),'date'] = 'batata'
-
+	print(dfAtual)
+	
+	
 	print(dfAtual.loc[dfAtual.last_valid_index(),'confirmed'])
-	if dfAtual.loc[dfAtual.last_valid_index(),'date'] != dfAnterior.loc[dfAnterior.last_valid_index(),'date'] :
+	
+	if dfAtual.loc[dfAtual.last_valid_index(),'date'] != dfAnterior.loc[dfAnterior.last_valid_index(),'date'] and dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] > dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']  :
+	
 		calcula()
+
 	else: 
 		print('Não atualizaram os números do ES ainda')
 		
@@ -81,7 +112,7 @@ else:
 
 
 
-#and dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] > dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']
+
 
 
 
