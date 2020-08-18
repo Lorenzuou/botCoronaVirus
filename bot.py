@@ -26,6 +26,7 @@ class Boletim():
 
 	def appendBoletim(self): 
 		print("confirmados: " + str(self.confirmed))
+		print("mortes: " + str(self.deaths))
 		data = pd.DataFrame({'count':[self.count],'date':[self.date],'confirmed':[self.confirmed],'deaths':[self.deaths]})
 		data.to_csv('boletins.csv',mode='a', header=False)
 
@@ -43,7 +44,7 @@ def calcula():
 
 def tuitar(mortes,casos): 
 
-	mensagem = "Hoje foram registradas "+ str(mortes) +" mortes por corona virus no ES e " + str(casos) + " novos casos."
+	mensagem = "Hoje, foram registradas "+ str(mortes) +" mortes por Covid-19 no ES e " + str(casos) + " novos casos."
 	try: 
 		api.update_status(mensagem)
 		print("tuitou")
@@ -95,10 +96,7 @@ if a['count'] > f:
 	dfAnterior = pd.read_json('anterior.json')
 	dfAtual = pd.read_json('atual.json')
 	
-	print(dfAtual)
 	
-	
-	print(dfAtual.loc[dfAtual.last_valid_index(),'confirmed'])
 	
 	if dfAtual.loc[dfAtual.last_valid_index(),'date'] != dfAnterior.loc[dfAnterior.last_valid_index(),'date'] and dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] > dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']  :
 	
