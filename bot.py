@@ -4,7 +4,6 @@ import tweepy
 import json
 import pandas as pd
 import importlib as ip
-from decouple import config
 
 
 
@@ -27,7 +26,7 @@ class Boletim():
 	def appendBoletim(self): 
 		print("confirmados: " + str(self.confirmed))
 		print("mortes: " + str(self.deaths))
-		data = pd.DataFrame({'count':[self.count],'date':[self.date],'confirmed':[self.confirmed],'deaths':[self.deaths]})
+		data = pd.DataFrame({'date':[self.date],'confirmed':[self.confirmed],'deaths':[self.deaths]}, index=[self.count])
 		data.to_csv('boletins.csv',mode='a', header=False)
 
 
@@ -38,7 +37,7 @@ def calcula():
 	mortes = dfAtual.loc[dfAtual.last_valid_index(),'deaths'] - dfAnterior.loc[dfAnterior.last_valid_index(),'deaths']
 
 	casos = dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] - dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']
-
+	
 	tuitar(mortes,casos)
 	
 
@@ -84,30 +83,59 @@ a = json.loads(requisicao.text)
 f = open('count.json')
 f = json.load(f)
 
-
-
-if a['count'] > f:
-	df = pd.json_normalize(a, ['results'])
-	print(df)
-	df = df.loc[(df['state'] == 'ES')]
-	df = df.reset_index()
-	df.to_json('atual.json')
-	
-	dfAnterior = pd.read_json('anterior.json')
-	dfAtual = pd.read_json('atual.json')
-	
-	
-	
-	if dfAtual.loc[dfAtual.last_valid_index(),'date'] != dfAnterior.loc[dfAnterior.last_valid_index(),'date'] and dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] > dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed']  :
-	
-		calcula()
-
-	else: 
-		print('Não atualizaram os números do ES ainda')
+try: 
+	if a['count'] > f:
+		df = pd.json_normalize(a, ['results'])
 		
-else: 
-	print("Não atualizaram o boletim ainda")	
+		df = df.loc[(df['state'] == 'ES')]
+		df = df.reset_index()
+		df.to_json('atual.json')
+		
+		dfAnterior = pd.read_json('anterior.json')
+		dfAtual = pd.read_json('atual.json')
+		
+		print(dfAtual.loc[dfAtual.last_valid_index(),'confirmed'])
+		
+		
+		valor = dfAtual['confirmed'].sum()
+		print(dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed'])
 
+		if dfAtual.loc[dfAtual.last_valid_index(),'date'] != dfAnterior.loc[dfAnterior.last_valid_index(),'date'] and dfAtual.loc[dfAtual.last_valid_index(),'confirmed'] > dfAnterior.loc[dfAnterior.last_valid_index(),'confirmed'] :
+		
+			calcula()
+
+		else: 
+			print('Não atualizaram os números do ES ainda')
+			
+	else: 
+		print("Não atualizaram o boletim ainda")	
+except: 
+	requisicao = 'https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-states.csv'
+
+	df = pd.read_csv(requisicao)
+
+
+		
+	df = df.loc[(df['state'] == 'ES')]
+	df = df.loc[(df['date']==df['date'].max())]
+	df = df.reset_index()
+	
+	mortes = df['newDeaths'].iloc[0]
+
+	casos = df['newCases'].iloc[0]
+	print(mortes)
+
+
+	mensagem = "Hoje, foram registradas "+ str(mortes) +" mortes por Covid-19 no ES e " + str(casos) + " novos casos."
+	try: 
+		api.update_status(mensagem)
+		print("tuitou")
+	except: 
+		print("status não foi atualizado")
+
+
+	df.to_csv('anterior.csv')
+	print("gravou")	
 
 
 

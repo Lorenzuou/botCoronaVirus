@@ -1,0 +1,2 @@
+,index,epi_week,date,country,state,city,newDeaths,deaths,newCases,totalCases,deathsMS,totalCasesMS,deaths_per_100k_inhabitants,totalCases_per_100k_inhabitants,deaths_by_totalCases,recovered,suspects,tests,tests_per_100k_inhabitants
+0,6265,43,2020-10-22,Brazil,ES,TOTAL,12,3767,660,148055,3759,147898,93.73795,3684.1974299999997,0.02544,127835.0,106655.0,417515.0,10389.43426
